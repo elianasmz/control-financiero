@@ -42,11 +42,14 @@ document.addEventListener("DOMContentLoaded", () => {
     cargarGastosFijos();
     cargarIngresosFijos();
     cargarPresupuestos();
+    cargarConfiguracion();
     cargarStorage();
 
     renderizarTodo();
     eventos();
     verificarFijosPendientes();
+    mostrarGuiaInicial();
+    intentarAutoAplicarFijos();
 });
 
 // =====================================
@@ -95,7 +98,9 @@ function eventos() {
     document.getElementById("guardarIngresoFijo").addEventListener("click", guardarIngresoFijo);
     document.getElementById("actualizarMovimiento").addEventListener("click", actualizarMovimiento);
     document.getElementById("guardarPresupuestos").addEventListener("click", guardarPresupuestosModal);
+    document.getElementById("guardarConfiguracion").addEventListener("click", guardarConfiguracionModal);
     document.getElementById("btnAplicarFijos").addEventListener("click", aplicarFijosAlMes);
+    document.getElementById("btnCerrarGuia").addEventListener("click", cerrarGuiaInicial);
 
     buscar.addEventListener("input", renderizarTodo);
     notas.addEventListener("input", guardarStorage);
@@ -106,6 +111,10 @@ function eventos() {
     document.getElementById("modalPresupuesto").addEventListener("show.bs.modal", renderFormPresupuestos);
     document.getElementById("modalGastoFijo").addEventListener("hidden.bs.modal", limpiarFormGastoFijo);
     document.getElementById("modalIngresoFijo").addEventListener("hidden.bs.modal", limpiarFormIngresoFijo);
+    document.getElementById("modalConfiguracion").addEventListener("show.bs.modal", () => {
+        document.getElementById("autoAplicarFijos").checked = configuracion.autoAplicarFijos !== false;
+        document.getElementById("metaAhorro").value = configuracion.metaAhorro || "";
+    });
 
     establecerFechaHoy("fechaIngreso");
     establecerFechaHoy("fechaGasto");
@@ -203,6 +212,7 @@ function guardarGastoFijo() {
             item.categoria = categoria;
             item.dia = dia;
             item.monto = monto;
+            sincronizarFijoAplicado("gasto", item);
         }
         mostrarToast("Gasto fijo actualizado.");
     } else {
@@ -218,8 +228,7 @@ function guardarGastoFijo() {
     }
 
     guardarGastosFijos();
-    renderGastosFijos();
-    actualizarKPIs();
+    renderizarTodo();
     cerrarModal("modalGastoFijo");
     verificarFijosPendientes();
 }
@@ -238,11 +247,13 @@ function editarGastoFijo(id) {
 }
 
 function eliminarGastoFijo(id) {
-    confirmarAccion("¿Eliminar este gasto fijo?", () => {
+    confirmarAccion("¿Eliminar este gasto fijo? También se quitará del mes actual si estaba aplicado.", () => {
         gastosFijos = gastosFijos.filter(g => g.id !== id);
+        gastos = gastos.filter(g => g.fijoId !== id);
+        fijosAplicados = false;
         guardarGastosFijos();
-        renderGastosFijos();
-        actualizarKPIs();
+        guardarStorage();
+        renderizarTodo();
         verificarFijosPendientes();
         mostrarToast("Gasto fijo eliminado.", "info");
     });
@@ -251,35 +262,107 @@ function eliminarGastoFijo(id) {
 function limpiarFormGastoFijo() {
     document.getElementById("gastoFijoId").value = "";
     document.getElementById("conceptoGastoFijo").value = "";
+    document.getElementById("categoriaGastoFijo").value = CATEGORIAS[0];
     document.getElementById("diaGastoFijo").value = "1";
     document.getElementById("montoGastoFijo").value = "";
 }
 
-function renderGastosFijos() {
-    const activos = gastosFijos.filter(g => g.activo !== false);
-    document.getElementById("badgeGastosFijos").textContent = activos.length;
+function sincronizarFijoAplicado(tipo, template) {
+    const lista = tipo === "gasto" ? gastos : ingresos;
+    const aplicado = lista.find(x => x.fijoId === template.id);
+    if (!aplicado) return;
 
-    if (activos.length === 0) {
-        tablaGastosFijos.innerHTML = filaVacia(5, "fa-repeat", "No hay gastos fijos configurados");
+    aplicado.concepto = template.concepto;
+    aplicado.monto = template.monto;
+    aplicado.fecha = obtenerFechaDelMes(template.dia);
+    if (tipo === "gasto") aplicado.categoria = template.categoria;
+    guardarStorage();
+}
+
+function toggleActivoFijo(tipo, id) {
+    const lista = tipo === "gasto" ? gastosFijos : ingresosFijos;
+    const item = lista.find(x => x.id === id);
+    if (!item) return;
+
+    item.activo = item.activo === false;
+    if (tipo === "gasto") guardarGastosFijos();
+    else guardarIngresosFijos();
+
+    renderizarTodo();
+    verificarFijosPendientes();
+    mostrarToast(item.activo !== false ? "Reactivado correctamente." : "Desactivado temporalmente.", "info");
+}
+
+function aplicarFijoIndividual(tipo, id) {
+    const template = tipo === "gasto"
+        ? gastosFijos.find(g => g.id === id)
+        : ingresosFijos.find(i => i.id === id);
+
+    if (!template || template.activo === false) return;
+
+    const lista = tipo === "gasto" ? gastos : ingresos;
+    if (lista.some(x => x.fijoId === id)) {
+        mostrarToast("Este movimiento ya está aplicado al mes.", "info");
         return;
     }
 
-    tablaGastosFijos.innerHTML = activos.map(g => `
-        <tr>
+    const entrada = {
+        id: Date.now() + Math.random(),
+        fecha: obtenerFechaDelMes(template.dia),
+        concepto: template.concepto,
+        monto: template.monto,
+        fijo: true,
+        fijoId: template.id
+    };
+
+    if (tipo === "gasto") {
+        entrada.categoria = template.categoria;
+        gastos.push(entrada);
+    } else {
+        ingresos.push(entrada);
+    }
+
+    guardarStorage();
+    renderizarTodo();
+    verificarFijosPendientes();
+    mostrarToast(`${template.concepto} aplicado al mes.`);
+}
+
+function renderGastosFijos() {
+    const texto = buscar.value.toLowerCase();
+    const filtrados = gastosFijos.filter(g =>
+        g.concepto.toLowerCase().includes(texto) ||
+        g.categoria.toLowerCase().includes(texto) ||
+        `dia ${g.dia}`.includes(texto)
+    );
+
+    const activos = filtrados.filter(g => g.activo !== false);
+    document.getElementById("badgeGastosFijos").textContent = activos.length;
+
+    const totalActivos = activos.reduce((t, g) => t + g.monto, 0);
+    document.getElementById("totalGastosFijosTabla").textContent =
+        activos.length > 0 ? `Total: ${formatoMoneda(totalActivos)}` : "";
+
+    if (filtrados.length === 0) {
+        tablaGastosFijos.innerHTML = filaVacia(6, "fa-repeat", gastosFijos.length === 0
+            ? "No hay gastos fijos configurados"
+            : "Sin resultados en la búsqueda");
+        return;
+    }
+
+    tablaGastosFijos.innerHTML = filtrados.map(g => {
+        const aplicado = estaFijoAplicado("gasto", g.id);
+        const inactivo = g.activo === false;
+        return `
+        <tr class="${inactivo ? "opacity-50" : ""}">
             <td>${escapeHtml(g.concepto)}</td>
             <td><span class="badge ${claseCategoria(g.categoria)}">${escapeHtml(g.categoria)}</span></td>
-            <td>Día ${g.dia}</td>
-            <td class="fw-semibold">${formatoMoneda(g.monto)}</td>
-            <td>
-                <button class="btn btn-sm btn-editar" onclick="editarGastoFijo(${g.id})">
-                    <i class="fa-solid fa-pen"></i>
-                </button>
-                <button class="btn btn-sm btn-eliminar" onclick="eliminarGastoFijo(${g.id})">
-                    <i class="fa-solid fa-trash"></i>
-                </button>
-            </td>
+            <td><span class="vencimiento-dia">Día ${g.dia}</span></td>
+            <td class="fw-semibold text-danger">${formatoMoneda(g.monto)}</td>
+            <td>${badgeEstadoFijo(aplicado, g.activo)}</td>
+            <td class="text-nowrap">${botonesAccionFijo("gasto", g.id, aplicado, g.activo)}</td>
         </tr>
-    `).join("");
+    `}).join("");
 }
 
 // =====================================
@@ -303,6 +386,7 @@ function guardarIngresoFijo() {
             item.concepto = concepto;
             item.dia = dia;
             item.monto = monto;
+            sincronizarFijoAplicado("ingreso", item);
         }
         mostrarToast("Ingreso fijo actualizado.");
     } else {
@@ -317,7 +401,7 @@ function guardarIngresoFijo() {
     }
 
     guardarIngresosFijos();
-    renderIngresosFijos();
+    renderizarTodo();
     cerrarModal("modalIngresoFijo");
     verificarFijosPendientes();
 }
@@ -335,10 +419,13 @@ function editarIngresoFijo(id) {
 }
 
 function eliminarIngresoFijo(id) {
-    confirmarAccion("¿Eliminar este ingreso fijo?", () => {
+    confirmarAccion("¿Eliminar este ingreso fijo? También se quitará del mes actual si estaba aplicado.", () => {
         ingresosFijos = ingresosFijos.filter(i => i.id !== id);
+        ingresos = ingresos.filter(i => i.fijoId !== id);
+        fijosAplicados = false;
         guardarIngresosFijos();
-        renderIngresosFijos();
+        guardarStorage();
+        renderizarTodo();
         verificarFijosPendientes();
         mostrarToast("Ingreso fijo eliminado.", "info");
     });
@@ -352,29 +439,38 @@ function limpiarFormIngresoFijo() {
 }
 
 function renderIngresosFijos() {
-    const activos = ingresosFijos.filter(i => i.activo !== false);
+    const texto = buscar.value.toLowerCase();
+    const filtrados = ingresosFijos.filter(i =>
+        i.concepto.toLowerCase().includes(texto) ||
+        `dia ${i.dia}`.includes(texto)
+    );
+
+    const activos = filtrados.filter(i => i.activo !== false);
     document.getElementById("badgeIngresosFijos").textContent = activos.length;
 
-    if (activos.length === 0) {
-        tablaIngresosFijos.innerHTML = filaVacia(4, "fa-money-bill-trend-up", "No hay ingresos fijos configurados");
+    const totalActivos = activos.reduce((t, i) => t + i.monto, 0);
+    document.getElementById("totalIngresosFijosTabla").textContent =
+        activos.length > 0 ? `Total: ${formatoMoneda(totalActivos)}` : "";
+
+    if (filtrados.length === 0) {
+        tablaIngresosFijos.innerHTML = filaVacia(5, "fa-money-bill-trend-up", ingresosFijos.length === 0
+            ? "No hay ingresos fijos configurados"
+            : "Sin resultados en la búsqueda");
         return;
     }
 
-    tablaIngresosFijos.innerHTML = activos.map(i => `
-        <tr>
+    tablaIngresosFijos.innerHTML = filtrados.map(i => {
+        const aplicado = estaFijoAplicado("ingreso", i.id);
+        const inactivo = i.activo === false;
+        return `
+        <tr class="${inactivo ? "opacity-50" : ""}">
             <td>${escapeHtml(i.concepto)}</td>
-            <td>Día ${i.dia}</td>
+            <td><span class="vencimiento-dia">Día ${i.dia}</span></td>
             <td class="fw-semibold text-success">${formatoMoneda(i.monto)}</td>
-            <td>
-                <button class="btn btn-sm btn-editar" onclick="editarIngresoFijo(${i.id})">
-                    <i class="fa-solid fa-pen"></i>
-                </button>
-                <button class="btn btn-sm btn-eliminar" onclick="eliminarIngresoFijo(${i.id})">
-                    <i class="fa-solid fa-trash"></i>
-                </button>
-            </td>
+            <td>${badgeEstadoFijo(aplicado, i.activo)}</td>
+            <td class="text-nowrap">${botonesAccionFijo("ingreso", i.id, aplicado, i.activo)}</td>
         </tr>
-    `).join("");
+    `}).join("");
 }
 
 // =====================================
@@ -390,7 +486,7 @@ function obtenerFechaDelMes(dia) {
     return `${anio.value}-${mesNum}-${diaStr}`;
 }
 
-function aplicarFijosAlMes() {
+function aplicarFijosAlMes(silencioso = false) {
     const gastosActivos = gastosFijos.filter(g => g.activo !== false);
     const ingresosActivos = ingresosFijos.filter(i => i.activo !== false);
     let agregados = 0;
@@ -432,8 +528,10 @@ function aplicarFijosAlMes() {
     verificarFijosPendientes();
 
     if (agregados > 0) {
-        mostrarToast(`${agregados} movimiento(s) fijo(s) aplicado(s) al mes.`);
-    } else {
+        if (!silencioso) {
+            mostrarToast(`${agregados} movimiento(s) fijo(s) aplicado(s) al mes.`);
+        }
+    } else if (!silencioso) {
         mostrarToast("Los movimientos fijos ya estaban aplicados.", "info");
     }
 }
@@ -443,8 +541,9 @@ function verificarFijosPendientes() {
     const hayFijos = gastosFijos.some(g => g.activo !== false) ||
                      ingresosFijos.some(i => i.activo !== false);
 
-    if (!hayFijos || fijosAplicados) {
+    if (!hayFijos) {
         alerta.classList.add("d-none");
+        fijosAplicados = true;
         return;
     }
 
@@ -455,12 +554,29 @@ function verificarFijosPendientes() {
         i.activo !== false && !ingresos.some(x => x.fijoId === i.id)
     ).length;
 
+    fijosAplicados = pendientesG + pendientesI === 0;
+
     if (pendientesG + pendientesI > 0) {
         document.getElementById("alertaFijosTexto").textContent =
             `Hay ${pendientesG} gasto(s) fijo(s) y ${pendientesI} ingreso(s) fijo(s) pendientes de aplicar a ${mes.value} ${anio.value}.`;
         alerta.classList.remove("d-none");
     } else {
         alerta.classList.add("d-none");
+    }
+}
+
+function intentarAutoAplicarFijos() {
+    if (!configuracion.autoAplicarFijos) return;
+
+    const pendientesG = gastosFijos.filter(g =>
+        g.activo !== false && !gastos.some(x => x.fijoId === g.id)
+    ).length;
+    const pendientesI = ingresosFijos.filter(i =>
+        i.activo !== false && !ingresos.some(x => x.fijoId === i.id)
+    ).length;
+
+    if (pendientesG + pendientesI > 0) {
+        aplicarFijosAlMes(true);
     }
 }
 
@@ -550,6 +666,8 @@ function renderizarTodo() {
     actualizarResumen();
     actualizarKPIs();
     renderPresupuestos();
+    renderVencimientos();
+    renderAlertaPresupuesto();
     if (typeof actualizarGraficos === "function") actualizarGraficos();
 }
 
@@ -580,10 +698,10 @@ function renderIngresos() {
             </td>
             <td class="text-success fw-semibold">${formatoMoneda(i.monto)}</td>
             <td>
-                <button class="btn btn-sm btn-editar" onclick="editarIngreso(${i.id})">
+                <button class="btn btn-sm btn-editar" onclick="editarIngreso(${i.id})" aria-label="Editar ingreso">
                     <i class="fa-solid fa-pen"></i>
                 </button>
-                <button class="btn btn-sm btn-eliminar" onclick="eliminarIngreso(${i.id})">
+                <button class="btn btn-sm btn-eliminar" onclick="eliminarIngreso(${i.id})" aria-label="Eliminar ingreso">
                     <i class="fa-solid fa-trash"></i>
                 </button>
             </td>
@@ -620,10 +738,10 @@ function renderGastos() {
             <td><span class="badge ${claseCategoria(g.categoria)}">${escapeHtml(g.categoria)}</span></td>
             <td class="text-danger fw-semibold">${formatoMoneda(g.monto)}</td>
             <td>
-                <button class="btn btn-sm btn-editar" onclick="editarGasto(${g.id})">
+                <button class="btn btn-sm btn-editar" onclick="editarGasto(${g.id})" aria-label="Editar gasto">
                     <i class="fa-solid fa-pen"></i>
                 </button>
-                <button class="btn btn-sm btn-eliminar" onclick="eliminarGasto(${g.id})">
+                <button class="btn btn-sm btn-eliminar" onclick="eliminarGasto(${g.id})" aria-label="Eliminar gasto">
                     <i class="fa-solid fa-trash"></i>
                 </button>
             </td>
@@ -647,6 +765,12 @@ function actualizarResumen() {
 
     balanceEl.classList.remove("positivo", "negativo");
     balanceEl.classList.add(saldo >= 0 ? "positivo" : "negativo");
+
+    const cardBalance = balanceEl.closest(".resumen");
+    if (cardBalance) {
+        cardBalance.classList.toggle("balance-positivo", saldo >= 0);
+        cardBalance.classList.toggle("balance-negativo", saldo < 0);
+    }
 }
 
 function actualizarKPIs() {
@@ -654,6 +778,8 @@ function actualizarKPIs() {
     const totalGastosVariablesMes = gastos.filter(g => !g.fijo).reduce((t, g) => t + g.monto, 0);
     const totalGastosFijosConfig = gastosFijos.filter(g => g.activo !== false)
         .reduce((t, g) => t + g.monto, 0);
+    const totalIngresosFijosConfig = ingresosFijos.filter(i => i.activo !== false)
+        .reduce((t, i) => t + i.monto, 0);
 
     document.getElementById("totalGastosFijos").textContent =
         formatoMoneda(totalGastosFijosMes || totalGastosFijosConfig);
@@ -665,12 +791,131 @@ function actualizarKPIs() {
     const ahorro = totalI > 0 ? Math.round(((totalI - totalG) / totalI) * 100) : 0;
     const elAhorro = document.getElementById("porcentajeAhorro");
     elAhorro.textContent = `${ahorro}%`;
-    elAhorro.className = `mb-0 ${ahorro >= 0 ? "text-success" : "text-danger"}`;
+
+    const meta = configuracion.metaAhorro || 0;
+    const metaEl = document.getElementById("metaAhorroTexto");
+    if (meta > 0) {
+        elAhorro.className = `mb-0 ${ahorro >= meta ? "text-success" : "text-danger"}`;
+        metaEl.textContent = `Meta: ${meta}%`;
+        metaEl.classList.remove("d-none");
+    } else {
+        elAhorro.className = `mb-0 ${ahorro >= 0 ? "text-success" : "text-danger"}`;
+        metaEl.classList.add("d-none");
+    }
 
     const indiceMes = MESES.indexOf(mes.value);
     const diasMes = new Date(anio.value, indiceMes + 1, 0).getDate();
     const promedio = totalG > 0 ? Math.round(totalG / diasMes) : 0;
     document.getElementById("promedioDiario").textContent = formatoMoneda(promedio);
+
+    const ingresosRef = totalI || totalIngresosFijosConfig;
+    const compromiso = ingresosRef > 0
+        ? Math.round((totalGastosFijosConfig / ingresosRef) * 100)
+        : 0;
+    const elCompromiso = document.getElementById("compromisoFijo");
+    elCompromiso.textContent = `${compromiso}%`;
+    elCompromiso.className = `mb-0 ${compromiso > 70 ? "text-danger" : compromiso > 50 ? "text-warning" : "text-info"}`;
+
+    const balanceFijosVal = totalIngresosFijosConfig - totalGastosFijosConfig;
+    const elBalanceFijos = document.getElementById("balanceFijos");
+    elBalanceFijos.textContent = formatoMoneda(balanceFijosVal);
+    elBalanceFijos.className = `mb-0 ${balanceFijosVal >= 0 ? "text-success" : "text-danger"}`;
+}
+
+function renderVencimientos() {
+    const contenedor = document.getElementById("contenedorVencimientos");
+    const periodoEl = document.getElementById("vencimientosPeriodo");
+    periodoEl.textContent = `${mes.value} ${anio.value}`;
+
+    const diaHoy = obtenerDiaActual();
+    const esMesActual = mes.value === obtenerMesActual() &&
+        parseInt(anio.value) === obtenerAnioActual();
+
+    const items = [];
+
+    gastosFijos.filter(g => g.activo !== false).forEach(g => {
+        items.push({ tipo: "gasto", concepto: g.concepto, dia: g.dia, monto: g.monto, categoria: g.categoria });
+    });
+    ingresosFijos.filter(i => i.activo !== false).forEach(i => {
+        items.push({ tipo: "ingreso", concepto: i.concepto, dia: i.dia, monto: i.monto });
+    });
+
+    items.sort((a, b) => a.dia - b.dia);
+
+    const proximos = esMesActual
+        ? items.filter(x => x.dia >= diaHoy)
+        : items;
+
+    if (proximos.length === 0) {
+        contenedor.innerHTML = `<p class="text-muted text-center py-2 mb-0">
+            <i class="fa-solid fa-check-circle text-success me-1"></i>
+            ${esMesActual ? "No hay más vencimientos este mes" : "Sin vencimientos en este período"}
+        </p>`;
+        return;
+    }
+
+    contenedor.innerHTML = proximos.slice(0, 6).map(v => `
+        <div class="vencimiento-item ${v.tipo}">
+            <div class="d-flex align-items-center gap-3">
+                <span class="vencimiento-dia">Día ${v.dia}</span>
+                <div>
+                    <strong>${escapeHtml(v.concepto)}</strong>
+                    <small class="d-block text-muted">
+                        ${v.tipo === "gasto"
+                            ? `<i class="fa-solid fa-arrow-down text-danger"></i> Gasto${v.categoria ? ` · ${escapeHtml(v.categoria)}` : ""}`
+                            : `<i class="fa-solid fa-arrow-up text-success"></i> Ingreso`}
+                    </small>
+                </div>
+            </div>
+            <span class="fw-semibold ${v.tipo === "gasto" ? "text-danger" : "text-success"}">
+                ${formatoMoneda(v.monto)}
+            </span>
+        </div>
+    `).join("");
+}
+
+function renderAlertaPresupuesto() {
+    const alerta = document.getElementById("alertaPresupuesto");
+    const excedidos = CATEGORIAS.filter(cat => {
+        const limite = presupuestos[cat];
+        if (!limite || limite <= 0) return false;
+        const gastado = gastos.filter(g => g.categoria === cat).reduce((t, g) => t + g.monto, 0);
+        return gastado > limite;
+    });
+
+    if (excedidos.length === 0) {
+        alerta.classList.add("d-none");
+        return;
+    }
+
+    document.getElementById("alertaPresupuestoTexto").textContent =
+        excedidos.length === 1
+            ? `Has superado el presupuesto en la categoría ${excedidos[0]}.`
+            : `Has superado el presupuesto en ${excedidos.length} categorías: ${excedidos.join(", ")}.`;
+    alerta.classList.remove("d-none");
+}
+
+function guardarConfiguracionModal() {
+    configuracion.autoAplicarFijos = document.getElementById("autoAplicarFijos").checked;
+    const meta = parseFloat(document.getElementById("metaAhorro").value);
+    configuracion.metaAhorro = !isNaN(meta) && meta >= 0 ? meta : 0;
+    guardarConfiguracion();
+    cerrarModal("modalConfiguracion");
+    actualizarKPIs();
+    mostrarToast("Configuración guardada.");
+}
+
+function mostrarGuiaInicial() {
+    const guia = document.getElementById("guiaInicial");
+    if (!configuracion.guiaVista && gastosFijos.length === 0 && ingresosFijos.length === 0) {
+        guia.classList.remove("d-none");
+    }
+}
+
+function cerrarGuiaInicial() {
+    document.getElementById("guiaInicial").classList.add("d-none");
+    configuracion.guiaVista = true;
+    guardarConfiguracion();
 }
 
 // =====================================
@@ -679,7 +924,9 @@ function actualizarKPIs() {
 
 function eliminarIngreso(id) {
     confirmarAccion("¿Desea eliminar este ingreso?", () => {
+        const eraFijo = ingresos.find(i => i.id === id)?.fijo;
         ingresos = ingresos.filter(i => i.id !== id);
+        if (eraFijo) fijosAplicados = false;
         guardarStorage();
         renderizarTodo();
         verificarFijosPendientes();
@@ -689,9 +936,12 @@ function eliminarIngreso(id) {
 
 function eliminarGasto(id) {
     confirmarAccion("¿Desea eliminar este gasto?", () => {
+        const eraFijo = gastos.find(g => g.id === id)?.fijo;
         gastos = gastos.filter(g => g.id !== id);
+        if (eraFijo) fijosAplicados = false;
         guardarStorage();
         renderizarTodo();
+        verificarFijosPendientes();
         mostrarToast("Gasto eliminado.", "info");
     });
 }
@@ -766,4 +1016,5 @@ function cambiarPeriodo() {
     cargarStorage();
     renderizarTodo();
     verificarFijosPendientes();
+    intentarAutoAplicarFijos();
 }

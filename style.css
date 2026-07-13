@@ -173,6 +173,190 @@ select.form-select,
 }
 
 /* ==========================================
+   TOOLBAR
+========================================== */
+
+.toolbar-card {
+    background: var(--card);
+}
+
+.toolbar-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.toolbar-grupo {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.toolbar-grupo .btn span {
+    margin-left: 6px;
+}
+
+.toolbar-grupo-principal .btn {
+    padding: 10px 16px;
+    font-size: 14px;
+}
+
+.toolbar-grupo-secundario .btn {
+    padding: 10px 14px;
+}
+
+.guia-inicial {
+    border-radius: var(--radius);
+    background: linear-gradient(135deg, #fff8e1, #fffde7);
+}
+
+body.dark .guia-inicial {
+    background: linear-gradient(135deg, #3e2723, #4e342e);
+    color: #fff;
+    border-color: #5d4037 !important;
+}
+
+.seccion-titulo h5 {
+    font-weight: 600;
+    color: var(--primary-dark);
+    margin-bottom: 4px;
+}
+
+body.dark .seccion-titulo h5 {
+    color: var(--primary);
+}
+
+/* ==========================================
+   KPIs
+========================================== */
+
+.kpi-icono {
+    font-size: 18px;
+    margin-bottom: 6px;
+    opacity: .85;
+}
+
+.kpi-card h4 {
+    font-size: 1.1rem;
+}
+
+.kpi-fijos { border-left-color: var(--danger); }
+.kpi-variables { border-left-color: var(--warning); }
+.kpi-ahorro { border-left-color: var(--success); }
+.kpi-promedio { border-left-color: var(--info); }
+.kpi-compromiso { border-left-color: #7e57c2; }
+.kpi-balance-fijos { border-left-color: #ab47bc; }
+
+/* ==========================================
+   ESTADOS FIJOS
+========================================== */
+
+.estado-badge {
+    font-size: 10px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.estado-aplicado { background: #e8f5e9; color: #2e7d32; }
+.estado-pendiente { background: #fff3e0; color: #ef6c00; }
+.estado-inactivo { background: #eceff1; color: #78909c; }
+
+body.dark .estado-aplicado { background: rgba(67,160,71,.2); color: #81c784; }
+body.dark .estado-pendiente { background: rgba(251,192,45,.2); color: #ffd54f; }
+body.dark .estado-inactivo { background: rgba(120,144,156,.2); color: #b0bec5; }
+
+.btn-aplicar-fijo {
+    background: #29b6f6;
+    color: white;
+    border: none;
+}
+
+.btn-aplicar-fijo:hover { background: #0288d1; color: white; }
+
+.btn-toggle-activo {
+    background: #78909c;
+    color: white;
+    border: none;
+}
+
+.btn-toggle-activo.activo { background: #66bb6a; }
+.btn-toggle-activo:hover { opacity: .9; color: white; }
+
+/* ==========================================
+   VENCIMIENTOS
+========================================== */
+
+.vencimiento-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-radius: 12px;
+    background: var(--secondary);
+    margin-bottom: 8px;
+    transition: .2s;
+}
+
+.vencimiento-item:last-child { margin-bottom: 0; }
+
+.vencimiento-item:hover {
+    transform: translateX(4px);
+}
+
+.vencimiento-item.gasto { border-left: 4px solid var(--danger); }
+.vencimiento-item.ingreso { border-left: 4px solid var(--success); }
+
+.vencimiento-dia {
+    font-weight: 700;
+    font-size: 13px;
+    min-width: 48px;
+    text-align: center;
+    padding: 4px 8px;
+    border-radius: 8px;
+    background: rgba(0,0,0,.06);
+}
+
+body.dark .vencimiento-item { background: #333348; }
+body.dark .vencimiento-dia { background: rgba(255,255,255,.08); }
+
+/* ==========================================
+   TABLAS STICKY
+========================================== */
+
+.tabla-sticky {
+    max-height: 380px;
+    overflow-y: auto;
+}
+
+.tabla-sticky thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--secondary);
+}
+
+body.dark .tabla-sticky thead th {
+    background: #333348;
+}
+
+.tabla-fijos-card .card-header {
+    padding: 14px 18px;
+}
+
+/* ==========================================
+   ALERTAS
+========================================== */
+
+#alertaPresupuesto {
+    border-radius: var(--radius);
+    border: none;
+}
+
+/* ==========================================
    RESUMEN
 ========================================== */
 
@@ -216,6 +400,8 @@ select.form-select,
 .ingreso { background: linear-gradient(135deg, #43a047, #66bb6a); }
 .gasto { background: linear-gradient(135deg, #d32f2f, #ef5350); }
 .balance { background: linear-gradient(135deg, #ab47bc, #ce93d8); }
+.balance-positivo { background: linear-gradient(135deg, #2e7d32, #66bb6a) !important; }
+.balance-negativo { background: linear-gradient(135deg, #c62828, #ef5350) !important; }
 .movimientos { background: linear-gradient(135deg, #1e88e5, #64b5f6); }
 
 /* ==========================================
@@ -460,6 +646,11 @@ body.dark .btn-secondary { background: #555; border: none; }
 body.dark .btn-outline-danger { color: #ef5350; border-color: #ef5350; }
 body.dark .btn-outline-success { color: #66bb6a; border-color: #66bb6a; }
 body.dark .btn-outline-primary { color: var(--primary); border-color: var(--primary); }
+body.dark .btn-outline-secondary { color: #aaa; border-color: #555; }
+body.dark .dropdown-menu { background: #252538; border-color: #444; }
+body.dark .dropdown-item { color: #eee; }
+body.dark .dropdown-item:hover { background: #333348; color: white; }
+body.dark .dropdown-divider { border-color: #444; }
 body.dark .presupuesto-barra { background: #3a3a50; }
 body.dark .chart-empty { color: #666; }
 body.dark .bg-danger-subtle { background: rgba(229,57,53,.15) !important; }
@@ -486,10 +677,16 @@ body.dark .bg-success-subtle { background: rgba(67,160,71,.15) !important; }
 @media (max-width: 768px) {
     .resumen { margin-bottom: 0; }
     .resumen h2 { font-size: 20px; }
-    .acciones-principales .btn { font-size: 12px; padding: 8px 4px; }
     .card-body { padding: 15px; }
     .table { font-size: 13px; }
     .chart-container { height: 260px; }
+    .toolbar-acciones { flex-direction: column; align-items: stretch; }
+    .toolbar-grupo { justify-content: center; }
+    .toolbar-grupo-principal .btn span,
+    .toolbar-grupo-secundario .btn span { display: none; }
+    .toolbar-grupo-principal .btn,
+    .toolbar-grupo-secundario .btn { padding: 10px 12px; }
+    .kpi-card h4 { font-size: .95rem; }
 }
 
 @media (max-width: 576px) {

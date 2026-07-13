@@ -52,51 +52,58 @@
     </div>
 
     <!-- BOTONES PRINCIPALES -->
-    <div class="row g-2 mb-4 acciones-principales">
-        <div class="col-6 col-md-3 col-lg-2 d-grid">
-            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalIngreso">
-                <i class="fa-solid fa-plus"></i> Ingreso
-            </button>
+    <div class="card shadow-sm border-0 mb-4 toolbar-card">
+        <div class="card-body py-3">
+            <div class="toolbar-acciones">
+                <div class="toolbar-grupo toolbar-grupo-principal">
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalIngreso">
+                        <i class="fa-solid fa-plus"></i><span>Ingreso</span>
+                    </button>
+                    <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalGasto">
+                        <i class="fa-solid fa-minus"></i><span>Gasto</span>
+                    </button>
+                    <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalGastoFijo">
+                        <i class="fa-solid fa-repeat"></i><span>Gasto Fijo</span>
+                    </button>
+                    <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#modalIngresoFijo">
+                        <i class="fa-solid fa-money-bill-trend-up"></i><span>Ingreso Fijo</span>
+                    </button>
+                </div>
+                <div class="toolbar-grupo toolbar-grupo-secundario">
+                    <div class="dropdown">
+                        <button class="btn btn-outline-primary dropdown-toggle" type="button"
+                            data-bs-toggle="dropdown" aria-label="Exportar e importar datos">
+                            <i class="fa-solid fa-file-export"></i><span>Exportar</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><button class="dropdown-item" id="btnPDF"><i class="fa-solid fa-file-pdf text-danger me-2"></i>PDF del mes</button></li>
+                            <li><button class="dropdown-item" id="btnExcel"><i class="fa-solid fa-file-excel text-success me-2"></i>Excel del mes</button></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><button class="dropdown-item" id="btnRespaldo"><i class="fa-solid fa-download text-info me-2"></i>Respaldo JSON</button></li>
+                            <li><button class="dropdown-item" id="btnAbrirImportar"><i class="fa-solid fa-upload text-secondary me-2"></i>Importar respaldo</button></li>
+                        </ul>
+                    </div>
+                    <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalConfiguracion"
+                        aria-label="Configuración">
+                        <i class="fa-solid fa-gear"></i><span class="d-none d-md-inline">Ajustes</span>
+                    </button>
+                    <button id="modoOscuro" class="btn btn-dark" aria-label="Cambiar tema">
+                        <i class="fa-solid fa-moon"></i>
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="col-6 col-md-3 col-lg-2 d-grid">
-            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalGasto">
-                <i class="fa-solid fa-minus"></i> Gasto
-            </button>
-        </div>
-        <div class="col-6 col-md-3 col-lg-2 d-grid">
-            <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalGastoFijo">
-                <i class="fa-solid fa-repeat"></i> Gasto Fijo
-            </button>
-        </div>
-        <div class="col-6 col-md-3 col-lg-2 d-grid">
-            <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#modalIngresoFijo">
-                <i class="fa-solid fa-money-bill-trend-up"></i> Ingreso Fijo
-            </button>
-        </div>
-        <div class="col-4 col-md-2 col-lg-1 d-grid">
-            <button id="btnPDF" class="btn btn-primary" title="Exportar PDF">
-                <i class="fa-solid fa-file-pdf"></i>
-            </button>
-        </div>
-        <div class="col-4 col-md-2 col-lg-1 d-grid">
-            <button id="btnExcel" class="btn btn-warning" title="Exportar Excel">
-                <i class="fa-solid fa-file-excel"></i>
-            </button>
-        </div>
-        <div class="col-4 col-md-2 col-lg-1 d-grid">
-            <button id="btnRespaldo" class="btn btn-info" title="Exportar respaldo JSON">
-                <i class="fa-solid fa-download"></i>
-            </button>
-        </div>
-        <div class="col-4 col-md-2 col-lg-1 d-grid">
-            <button id="btnAbrirImportar" class="btn btn-secondary" title="Importar respaldo">
-                <i class="fa-solid fa-upload"></i>
-            </button>
-        </div>
-        <div class="col-4 col-md-2 col-lg-1 d-grid">
-            <button id="modoOscuro" class="btn btn-dark" title="Cambiar tema">
-                <i class="fa-solid fa-moon"></i>
-            </button>
+    </div>
+
+    <!-- GUÍA INICIAL -->
+    <div id="guiaInicial" class="alert alert-light border guia-inicial d-none mb-4">
+        <div class="d-flex align-items-start gap-3">
+            <i class="fa-solid fa-lightbulb text-warning fa-lg mt-1"></i>
+            <div class="flex-grow-1">
+                <strong>¡Bienvenido!</strong> Configura tus gastos e ingresos fijos mensuales, luego aplícalos al mes actual.
+                Define presupuestos por categoría para un control más preciso.
+            </div>
+            <button id="btnCerrarGuia" class="btn-close" aria-label="Cerrar guía"></button>
         </div>
     </div>
 
@@ -142,38 +149,67 @@
 
     <!-- KPIs -->
     <div class="row g-3 mb-4">
-        <div class="col-6 col-md-3">
-            <div class="card kpi-card">
+        <div class="col-6 col-md-4 col-lg-2">
+            <div class="card kpi-card kpi-fijos">
                 <div class="card-body">
-                    <small class="text-muted"><i class="fa-solid fa-repeat me-1"></i> Gastos fijos</small>
+                    <div class="kpi-icono text-danger"><i class="fa-solid fa-repeat"></i></div>
+                    <small class="text-muted">Gastos fijos</small>
                     <h4 id="totalGastosFijos" class="mb-0 text-danger">Gs. 0</h4>
                 </div>
             </div>
         </div>
-        <div class="col-6 col-md-3">
-            <div class="card kpi-card">
+        <div class="col-6 col-md-4 col-lg-2">
+            <div class="card kpi-card kpi-variables">
                 <div class="card-body">
-                    <small class="text-muted"><i class="fa-solid fa-shuffle me-1"></i> Gastos variables</small>
+                    <div class="kpi-icono text-warning"><i class="fa-solid fa-shuffle"></i></div>
+                    <small class="text-muted">Gastos variables</small>
                     <h4 id="totalGastosVariables" class="mb-0 text-warning">Gs. 0</h4>
                 </div>
             </div>
         </div>
-        <div class="col-6 col-md-3">
-            <div class="card kpi-card">
+        <div class="col-6 col-md-4 col-lg-2">
+            <div class="card kpi-card kpi-ahorro">
                 <div class="card-body">
-                    <small class="text-muted"><i class="fa-solid fa-piggy-bank me-1"></i> % Ahorro</small>
+                    <div class="kpi-icono text-success"><i class="fa-solid fa-piggy-bank"></i></div>
+                    <small class="text-muted">% Ahorro</small>
                     <h4 id="porcentajeAhorro" class="mb-0 text-success">0%</h4>
+                    <small id="metaAhorroTexto" class="text-muted d-none"></small>
                 </div>
             </div>
         </div>
-        <div class="col-6 col-md-3">
-            <div class="card kpi-card">
+        <div class="col-6 col-md-4 col-lg-2">
+            <div class="card kpi-card kpi-promedio">
                 <div class="card-body">
-                    <small class="text-muted"><i class="fa-solid fa-calendar-day me-1"></i> Promedio diario</small>
+                    <div class="kpi-icono text-primary"><i class="fa-solid fa-calendar-day"></i></div>
+                    <small class="text-muted">Promedio diario</small>
                     <h4 id="promedioDiario" class="mb-0 text-primary">Gs. 0</h4>
                 </div>
             </div>
         </div>
+        <div class="col-6 col-md-4 col-lg-2">
+            <div class="card kpi-card kpi-compromiso">
+                <div class="card-body">
+                    <div class="kpi-icono text-info"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+                    <small class="text-muted">Compromiso fijo</small>
+                    <h4 id="compromisoFijo" class="mb-0 text-info">0%</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+            <div class="card kpi-card kpi-balance-fijos">
+                <div class="card-body">
+                    <div class="kpi-icono"><i class="fa-solid fa-scale-balanced"></i></div>
+                    <small class="text-muted">Balance fijos</small>
+                    <h4 id="balanceFijos" class="mb-0">Gs. 0</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ALERTAS FINANCIERAS -->
+    <div id="alertaPresupuesto" class="alert alert-warning d-flex align-items-center mb-4 d-none">
+        <i class="fa-solid fa-triangle-exclamation me-2"></i>
+        <span id="alertaPresupuestoTexto"></span>
     </div>
 
     <!-- ALERTA APLICAR FIJOS -->
@@ -195,22 +231,40 @@
                     <i class="fa-solid fa-magnifying-glass text-muted"></i>
                 </span>
                 <input type="text" id="buscar" class="form-control border-start-0"
-                    placeholder="Buscar por concepto, categoría o fecha...">
+                    placeholder="Buscar en movimientos y compromisos fijos...">
             </div>
         </div>
     </div>
 
+    <!-- PRÓXIMOS VENCIMIENTOS -->
+    <div class="card shadow-sm mb-4" id="cardVencimientos">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fa-solid fa-bell text-warning me-2"></i>Próximos vencimientos</h5>
+            <small class="text-muted" id="vencimientosPeriodo"></small>
+        </div>
+        <div class="card-body" id="contenedorVencimientos">
+            <p class="text-muted text-center py-2 mb-0">Sin vencimientos próximos</p>
+        </div>
+    </div>
+
     <!-- GASTOS FIJOS / INGRESOS FIJOS -->
+    <div class="seccion-titulo mb-3">
+        <h5><i class="fa-solid fa-calendar-check me-2"></i>Compromisos mensuales recurrentes</h5>
+        <p class="text-muted mb-0">Configura tus pagos e ingresos que se repiten cada mes</p>
+    </div>
     <div class="row g-3 mb-4">
         <div class="col-lg-6">
-            <div class="card shadow h-100">
+            <div class="card shadow h-100 tabla-fijos-card">
                 <div class="card-header bg-danger-subtle d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">
-                        <i class="fa-solid fa-repeat text-danger"></i> Gastos Fijos Mensuales
+                        <i class="fa-solid fa-repeat text-danger"></i> Gastos Fijos
                     </h5>
-                    <span id="badgeGastosFijos" class="badge bg-danger">0</span>
+                    <div class="d-flex align-items-center gap-2">
+                        <small class="text-muted fw-semibold" id="totalGastosFijosTabla"></small>
+                        <span id="badgeGastosFijos" class="badge bg-danger">0</span>
+                    </div>
                 </div>
-                <div class="table-responsive">
+                <div class="table-responsive tabla-sticky">
                     <table class="table table-hover align-middle mb-0">
                         <thead>
                             <tr>
@@ -218,6 +272,7 @@
                                 <th>Categoría</th>
                                 <th>Día</th>
                                 <th>Monto</th>
+                                <th>Estado</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -227,20 +282,24 @@
             </div>
         </div>
         <div class="col-lg-6">
-            <div class="card shadow h-100">
+            <div class="card shadow h-100 tabla-fijos-card">
                 <div class="card-header bg-success-subtle d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">
-                        <i class="fa-solid fa-money-bill-trend-up text-success"></i> Ingresos Fijos Mensuales
+                        <i class="fa-solid fa-money-bill-trend-up text-success"></i> Ingresos Fijos
                     </h5>
-                    <span id="badgeIngresosFijos" class="badge bg-success">0</span>
+                    <div class="d-flex align-items-center gap-2">
+                        <small class="text-muted fw-semibold" id="totalIngresosFijosTabla"></small>
+                        <span id="badgeIngresosFijos" class="badge bg-success">0</span>
+                    </div>
                 </div>
-                <div class="table-responsive">
+                <div class="table-responsive tabla-sticky">
                     <table class="table table-hover align-middle mb-0">
                         <thead>
                             <tr>
                                 <th>Concepto</th>
                                 <th>Día</th>
                                 <th>Monto</th>
+                                <th>Estado</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -572,6 +631,35 @@
             <div class="modal-footer">
                 <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                 <button id="btnImportar" class="btn btn-info">Importar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL CONFIGURACIÓN -->
+<div class="modal fade" id="modalConfiguracion" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fa-solid fa-gear me-2"></i>Configuración</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" id="autoAplicarFijos">
+                    <label class="form-check-label" for="autoAplicarFijos">
+                        Aplicar gastos e ingresos fijos automáticamente al cambiar de mes
+                    </label>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Meta de ahorro mensual (%)</label>
+                    <input type="number" id="metaAhorro" class="form-control" min="0" max="100" placeholder="Ej: 20">
+                    <small class="text-muted">Porcentaje de ingresos que deseas ahorrar cada mes</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button id="guardarConfiguracion" class="btn btn-primary">Guardar</button>
             </div>
         </div>
     </div>

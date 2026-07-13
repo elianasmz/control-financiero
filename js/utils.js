@@ -169,3 +169,41 @@ function filaVacia(colspan, icono, mensaje) {
         </tr>
     `;
 }
+
+function estaFijoAplicado(tipo, fijoId) {
+    const lista = tipo === "gasto" ? gastos : ingresos;
+    return lista.some(x => x.fijoId === fijoId);
+}
+
+function badgeEstadoFijo(aplicado, activo) {
+    if (activo === false) {
+        return '<span class="estado-badge estado-inactivo"><i class="fa-solid fa-pause me-1"></i>Inactivo</span>';
+    }
+    if (aplicado) {
+        return '<span class="estado-badge estado-aplicado"><i class="fa-solid fa-check me-1"></i>Aplicado</span>';
+    }
+    return '<span class="estado-badge estado-pendiente"><i class="fa-solid fa-clock me-1"></i>Pendiente</span>';
+}
+
+function botonesAccionFijo(tipo, id, aplicado, activo) {
+    const aplicarBtn = (!aplicado && activo !== false)
+        ? `<button class="btn btn-sm btn-aplicar-fijo" onclick="aplicarFijoIndividual('${tipo}', ${id})" aria-label="Aplicar al mes">
+                <i class="fa-solid fa-bolt"></i>
+           </button>`
+        : "";
+    const toggleClass = activo !== false ? "activo" : "";
+    const toggleIcon = activo !== false ? "fa-toggle-on" : "fa-toggle-off";
+    return `
+        ${aplicarBtn}
+        <button class="btn btn-sm btn-toggle-activo ${toggleClass}" onclick="toggleActivoFijo('${tipo}', ${id})"
+            aria-label="Activar o desactivar" title="${activo !== false ? "Desactivar" : "Activar"}">
+            <i class="fa-solid ${toggleIcon}"></i>
+        </button>
+        <button class="btn btn-sm btn-editar" onclick="editar${tipo === "gasto" ? "Gasto" : "Ingreso"}Fijo(${id})" aria-label="Editar">
+            <i class="fa-solid fa-pen"></i>
+        </button>
+        <button class="btn btn-sm btn-eliminar" onclick="eliminar${tipo === "gasto" ? "Gasto" : "Ingreso"}Fijo(${id})" aria-label="Eliminar">
+            <i class="fa-solid fa-trash"></i>
+        </button>
+    `;
+}
