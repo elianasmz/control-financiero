@@ -1,0 +1,888 @@
+/* ==========================================
+   VARIABLES
+========================================== */
+
+:root {
+
+    --primary: #f48fb1;
+    --primary-dark: #ec407a;
+    --secondary: #fce4ec;
+
+    --success: #43a047;
+    --danger: #e53935;
+    --warning: #fbc02d;
+    --info: #29b6f6;
+
+    --background: #fff7fa;
+
+    --card: #ffffff;
+
+    --text: #333;
+
+    --shadow: 0 8px 20px rgba(0,0,0,.08);
+
+    --radius: 18px;
+
+    --transition: .30s;
+
+}
+
+
+/* ==========================================
+   DARK MODE
+========================================== */
+
+body.dark {
+
+    --background:#1f1f1f;
+    --card:#2c2c2c;
+    --text:#f2f2f2;
+
+}
+
+
+/* ==========================================
+   GENERAL
+========================================== */
+
+*{
+
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+
+}
+
+body{
+
+    font-family:'Poppins',sans-serif;
+
+    background:var(--background);
+
+    color:var(--text);
+
+    transition:.4s;
+
+}
+
+.container{
+
+    max-width:1350px;
+
+}
+
+h1,h2,h3,h4,h5{
+
+    font-weight:600;
+
+}
+
+label{
+
+    font-weight:500;
+
+    margin-bottom:5px;
+
+}
+
+.titulo{
+
+    color:var(--primary-dark);
+
+    font-size:2rem;
+
+}
+
+.text-muted{
+
+    color:#777!important;
+
+}
+
+
+/* ==========================================
+   CARDS
+========================================== */
+
+.card{
+
+    border:none;
+
+    border-radius:var(--radius);
+
+    box-shadow:var(--shadow);
+
+    background:var(--card);
+
+    overflow:hidden;
+
+    transition:.3s;
+
+}
+
+.card:hover{
+
+    transform:translateY(-3px);
+
+}
+
+.card-header{
+
+    border:none;
+
+    padding:18px;
+
+    font-size:18px;
+
+    font-weight:600;
+
+}
+
+.card-body{
+
+    padding:20px;
+
+}
+
+
+/* ==========================================
+   HEADER
+========================================== */
+
+select.form-select{
+
+    border-radius:12px;
+
+}
+
+.form-control{
+
+    border-radius:12px;
+
+}
+
+.form-select{
+
+    border-radius:12px;
+
+}
+
+
+/* ==========================================
+   BOTONES
+========================================== */
+
+.btn{
+
+    border-radius:12px;
+
+    font-weight:600;
+
+    transition:.3s;
+
+}
+
+.btn:hover{
+
+    transform:translateY(-2px);
+
+}
+
+.btn-success{
+
+    background:var(--success);
+
+}
+
+.btn-danger{
+
+    background:var(--danger);
+
+}
+
+.btn-primary{
+
+    background:var(--primary-dark);
+
+    border:none;
+
+}
+
+.btn-warning{
+
+    color:white;
+
+}
+
+.btn-dark{
+
+    background:#222;
+
+}
+
+
+/* ==========================================
+   RESUMEN
+========================================== */
+
+.resumen{
+
+    text-align:center;
+
+    color:white;
+
+}
+
+.resumen h6{
+
+    opacity:.9;
+
+}
+
+.resumen h2{
+
+    margin-top:15px;
+
+    font-size:30px;
+
+    font-weight:700;
+
+}
+
+.ingreso{
+
+    background:linear-gradient(
+        135deg,
+        #43a047,
+        #66bb6a
+    );
+
+}
+
+.gasto{
+
+    background:linear-gradient(
+        135deg,
+        #d32f2f,
+        #ef5350
+    );
+
+}
+
+.balance{
+
+    background:linear-gradient(
+        135deg,
+        #ab47bc,
+        #ce93d8
+    );
+
+}
+
+.movimientos{
+
+    background:linear-gradient(
+        135deg,
+        #1e88e5,
+        #64b5f6
+    );
+
+}
+
+
+/* ==========================================
+   BUSCADOR
+========================================== */
+
+#buscar{
+
+    padding:14px;
+
+    font-size:16px;
+
+}
+
+
+/* ==========================================
+   TABLAS
+========================================== */
+
+table{
+
+    margin:0;
+
+}
+
+thead{
+
+    background:#fafafa;
+
+}
+
+thead th{
+
+    font-size:14px;
+
+    font-weight:600;
+
+}
+
+tbody tr{
+
+    transition:.2s;
+
+}
+
+tbody tr:hover{
+
+    background:#fff3f7;
+
+}
+
+td{
+
+    vertical-align:middle;
+
+}
+
+td .btn{
+
+    margin-right:4px;
+
+}
+
+
+/* ==========================================
+   ICONOS
+========================================== */
+
+.fa-pen{
+
+    color:#1565c0;
+
+}
+
+.fa-trash{
+
+    color:#d32f2f;
+
+}
+
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media(max-width:992px){
+
+    .titulo{
+
+        text-align:center;
+
+        margin-bottom:20px;
+
+    }
+
+}
+
+@media(max-width:768px){
+
+    .resumen{
+
+        margin-bottom:15px;
+
+    }
+
+    .btn{
+
+        margin-bottom:10px;
+
+    }
+
+}
+/* ==========================================
+   GRAFICOS
+========================================== */
+
+canvas{
+
+    width:100% !important;
+
+    max-height:350px;
+
+}
+
+.card canvas{
+
+    padding:15px;
+
+}
+
+
+/* ==========================================
+   NOTAS
+========================================== */
+
+#notas{
+
+    resize:none;
+
+    min-height:180px;
+
+    border-radius:15px;
+
+    transition:.3s;
+
+}
+
+#notas:focus{
+
+    border-color:var(--primary-dark);
+
+    box-shadow:0 0 0 .25rem rgba(236,64,122,.25);
+
+}
+
+
+/* ==========================================
+   MODALES
+========================================== */
+
+.modal-content{
+
+    border:none;
+
+    border-radius:20px;
+
+    overflow:hidden;
+
+}
+
+.modal-header{
+
+    border:none;
+
+}
+
+.modal-footer{
+
+    border:none;
+
+}
+
+.modal-body label{
+
+    font-weight:600;
+
+}
+
+.modal-body input,
+
+.modal-body select{
+
+    height:48px;
+
+}
+
+
+/* ==========================================
+   FORMULARIOS
+========================================== */
+
+.form-control,
+
+.form-select{
+
+    transition:.3s;
+
+}
+
+.form-control:focus,
+
+.form-select:focus{
+
+    border-color:var(--primary);
+
+    box-shadow:0 0 0 .25rem rgba(244,143,177,.25);
+
+}
+
+
+/* ==========================================
+   BADGES CATEGORIAS
+========================================== */
+
+.badge{
+
+    padding:8px 12px;
+
+    border-radius:20px;
+
+    font-size:12px;
+
+}
+
+.badge.comida{
+
+    background:#ff7043;
+
+}
+
+.badge.transporte{
+
+    background:#42a5f5;
+
+}
+
+.badge.hogar{
+
+    background:#8d6e63;
+
+}
+
+.badge.salud{
+
+    background:#ef5350;
+
+}
+
+.badge.servicios{
+
+    background:#7e57c2;
+
+}
+
+.badge.educacion{
+
+    background:#66bb6a;
+
+}
+
+.badge.ocio{
+
+    background:#ec407a;
+
+}
+
+.badge.otros{
+
+    background:#78909c;
+
+}
+
+
+/* ==========================================
+   BOTONES DE ACCION
+========================================== */
+
+.btn-editar{
+
+    background:#42a5f5;
+
+    color:white;
+
+}
+
+.btn-eliminar{
+
+    background:#ef5350;
+
+    color:white;
+
+}
+
+.btn-editar:hover{
+
+    background:#1e88e5;
+
+}
+
+.btn-eliminar:hover{
+
+    background:#d32f2f;
+
+}
+
+
+/* ==========================================
+   SCROLL
+========================================== */
+
+::-webkit-scrollbar{
+
+    width:10px;
+
+}
+
+::-webkit-scrollbar-track{
+
+    background:#f5f5f5;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+    background:var(--primary);
+
+    border-radius:20px;
+
+}
+
+::-webkit-scrollbar-thumb:hover{
+
+    background:var(--primary-dark);
+
+}
+
+
+/* ==========================================
+   ANIMACIONES
+========================================== */
+
+@keyframes aparecer{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(20px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
+
+}
+
+.card{
+
+    animation:aparecer .4s ease;
+
+}
+
+.table tbody tr{
+
+    animation:aparecer .3s ease;
+
+}
+
+
+/* ==========================================
+   TABLAS
+========================================== */
+
+.table{
+
+    border-radius:15px;
+
+    overflow:hidden;
+
+}
+
+.table thead{
+
+    background:#fce4ec;
+
+}
+
+.table thead th{
+
+    color:#444;
+
+    border:none;
+
+}
+
+.table td{
+
+    border-color:#f0f0f0;
+
+}
+
+
+/* ==========================================
+   BALANCE
+========================================== */
+
+.positivo{
+
+    color:#2e7d32 !important;
+
+}
+
+.negativo{
+
+    color:#c62828 !important;
+
+}
+
+
+/* ==========================================
+   SOMBRAS
+========================================== */
+
+.shadow{
+
+    box-shadow:var(--shadow)!important;
+
+}
+
+.shadow-lg{
+
+    box-shadow:0 10px 30px rgba(0,0,0,.15)!important;
+
+}
+
+
+/* ==========================================
+   TRANSICIONES
+========================================== */
+
+button,
+
+.card,
+
+input,
+
+textarea,
+
+select{
+
+    transition:all .25s ease;
+
+}
+
+
+/* ==========================================
+   DARK MODE
+========================================== */
+
+body.dark .card{
+
+    background:#2c2c2c;
+
+    color:white;
+
+}
+
+body.dark table{
+
+    color:white;
+
+}
+
+body.dark thead{
+
+    background:#3b3b3b;
+
+}
+
+body.dark tbody tr:hover{
+
+    background:#444;
+
+}
+
+body.dark .form-control,
+
+body.dark .form-select{
+
+    background:#3a3a3a;
+
+    color:white;
+
+    border-color:#555;
+
+}
+
+body.dark .text-muted{
+
+    color:#cfcfcf !important;
+
+}
+
+body.dark .modal-content{
+
+    background:#2b2b2b;
+
+    color:white;
+
+}
+
+body.dark .btn-secondary{
+
+    background:#555;
+
+    border:none;
+
+}
+
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media(max-width:992px){
+
+    .card-header h4{
+
+        font-size:18px;
+
+    }
+
+}
+
+@media(max-width:768px){
+
+    h1{
+
+        font-size:28px;
+
+    }
+
+    .card-body{
+
+        padding:15px;
+
+    }
+
+    .table{
+
+        font-size:13px;
+
+    }
+
+    .btn{
+
+        width:100%;
+
+    }
+
+}
+
+@media(max-width:576px){
+
+    .titulo{
+
+        font-size:24px;
+
+    }
+
+    .resumen h2{
+
+        font-size:22px;
+
+    }
+
+    .modal-dialog{
+
+        margin:10px;
+
+    }
+
+}

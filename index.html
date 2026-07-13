@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Control Financiero</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- SheetJS -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+</head>
+
+<body>
+
+<div class="container py-4">
+
+    <!-- HEADER -->
+
+    <div class="card shadow-lg border-0 mb-4">
+
+        <div class="card-body">
+
+            <div class="row align-items-center">
+
+                <div class="col-md-6">
+
+                    <h1 class="titulo">
+                        <i class="fa-solid fa-wallet"></i>
+                        Control Financiero
+                    </h1>
+
+                    <p class="text-muted">
+                        Organiza tus ingresos y gastos mensuales.
+                    </p>
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <div class="row">
+
+                        <div class="col">
+
+                            <label>Mes</label>
+
+                            <select
+                                id="mes"
+                                class="form-select">
+
+                                <option>Enero</option>
+                                <option>Febrero</option>
+                                <option>Marzo</option>
+                                <option>Abril</option>
+                                <option>Mayo</option>
+                                <option>Junio</option>
+                                <option>Julio</option>
+                                <option>Agosto</option>
+                                <option>Septiembre</option>
+                                <option>Octubre</option>
+                                <option>Noviembre</option>
+                                <option>Diciembre</option>
+
+                            </select>
+
+                        </div>
+
+                        <div class="col">
+
+                            <label>Año</label>
+
+                            <select
+                                id="anio"
+                                class="form-select">
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- BOTONES -->
+
+    <div class="row mb-4">
+
+        <div class="col-md-3 d-grid">
+
+            <button
+                class="btn btn-success"
+                data-bs-toggle="modal"
+                data-bs-target="#modalIngreso">
+
+                <i class="fa-solid fa-plus"></i>
+
+                Nuevo Ingreso
+
+            </button>
+
+        </div>
+
+        <div class="col-md-3 d-grid">
+
+            <button
+                class="btn btn-danger"
+                data-bs-toggle="modal"
+                data-bs-target="#modalGasto">
+
+                <i class="fa-solid fa-minus"></i>
+
+                Nuevo Gasto
+
+            </button>
+
+        </div>
+
+        <div class="col-md-2 d-grid">
+
+            <button
+                id="btnPDF"
+                class="btn btn-primary">
+
+                <i class="fa-solid fa-file-pdf"></i>
+
+                PDF
+
+            </button>
+
+        </div>
+
+        <div class="col-md-2 d-grid">
+
+            <button
+                id="btnExcel"
+                class="btn btn-warning">
+
+                <i class="fa-solid fa-file-excel"></i>
+
+                Excel
+
+            </button>
+
+        </div>
+
+        <div class="col-md-2 d-grid">
+
+            <button
+                id="modoOscuro"
+                class="btn btn-dark">
+
+                🌙
+
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- RESUMEN -->
+
+    <div class="row mb-4">
+
+        <div class="col-md-3">
+
+            <div class="card resumen ingreso">
+
+                <div class="card-body">
+
+                    <h6>Ingresos</h6>
+
+                    <h2 id="totalIngresos">
+
+                        Gs. 0
+
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-3">
+
+            <div class="card resumen gasto">
+
+                <div class="card-body">
+
+                    <h6>Gastos</h6>
+
+                    <h2 id="totalGastos">
+
+                        Gs. 0
+
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-3">
+
+            <div class="card resumen balance">
+
+                <div class="card-body">
+
+                    <h6>Balance</h6>
+
+                    <h2 id="balance">
+
+                        Gs. 0
+
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-3">
+
+            <div class="card resumen movimientos">
+
+                <div class="card-body">
+
+                    <h6>Movimientos</h6>
+
+                    <h2 id="cantidadMovimientos">
+
+                        0
+
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+        <!-- BUSCADOR -->
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <div class="col-md-12">
+
+                    <input
+                        type="text"
+                        id="buscar"
+                        class="form-control"
+                        placeholder="🔍 Buscar por concepto, categoría o fecha...">
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- TABLAS -->
+
+    <div class="row">
+
+        <!-- INGRESOS -->
+
+        <div class="col-lg-6 mb-4">
+
+            <div class="card shadow">
+
+                <div class="card-header bg-success text-white">
+
+                    <h4 class="mb-0">
+                        <i class="fa-solid fa-arrow-trend-up"></i>
+                        Ingresos
+                    </h4>
+
+                </div>
+
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Fecha</th>
+
+                                <th>Concepto</th>
+
+                                <th>Monto</th>
+
+                                <th></th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="tablaIngresos">
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- GASTOS -->
+
+        <div class="col-lg-6 mb-4">
+
+            <div class="card shadow">
+
+                <div class="card-header bg-danger text-white">
+
+                    <h4 class="mb-0">
+
+                        <i class="fa-solid fa-arrow-trend-down"></i>
+
+                        Gastos
+
+                    </h4>
+
+                </div>
+
+                <div class="table-responsive">
+
+                    <table class="table table-hover align-middle">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Fecha</th>
+
+                                <th>Concepto</th>
+
+                                <th>Categoría</th>
+
+                                <th>Monto</th>
+
+                                <th></th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="tablaGastos">
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- GRAFICOS -->
+
+    <div class="row">
+
+        <div class="col-lg-6 mb-4">
+
+            <div class="card shadow">
+
+                <div class="card-header">
+
+                    <strong>Ingresos vs Gastos</strong>
+
+                </div>
+
+                <div class="card-body">
+
+                    <canvas id="graficoBarras"></canvas>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-lg-6 mb-4">
+
+            <div class="card shadow">
+
+                <div class="card-header">
+
+                    <strong>Gastos por categoría</strong>
+
+                </div>
+
+                <div class="card-body">
+
+                    <canvas id="graficoCategorias"></canvas>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- NOTAS -->
+
+    <div class="card shadow mb-4">
+
+        <div class="card-header">
+
+            <h4>
+
+                <i class="fa-solid fa-note-sticky"></i>
+
+                Notas
+
+            </h4>
+
+        </div>
+
+        <div class="card-body">
+
+            <textarea
+                id="notas"
+                class="form-control"
+                rows="6"
+                placeholder="Escribe aquí tus observaciones..."></textarea>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ====================================================== -->
+<!-- MODAL INGRESO -->
+<!-- ====================================================== -->
+
+<div
+class="modal fade"
+id="modalIngreso"
+tabindex="-1">
+
+<div class="modal-dialog">
+
+<div class="modal-content">
+
+<div class="modal-header bg-success text-white">
+
+<h5>Nuevo ingreso</h5>
+
+<button
+class="btn-close btn-close-white"
+data-bs-dismiss="modal"></button>
+
+</div>
+
+<div class="modal-body">
+
+<div class="mb-3">
+
+<label>Fecha</label>
+
+<input
+type="date"
+id="fechaIngreso"
+class="form-control">
+
+</div>
+
+<div class="mb-3">
+
+<label>Concepto</label>
+
+<input
+type="text"
+id="conceptoIngreso"
+class="form-control">
+
+</div>
+
+<div class="mb-3">
+
+<label>Monto</label>
+
+<input
+type="number"
+id="montoIngreso"
+class="form-control">
+
+</div>
+
+</div>
+
+<div class="modal-footer">
+
+<button
+class="btn btn-secondary"
+data-bs-dismiss="modal">
+
+Cancelar
+
+</button>
+
+<button
+id="guardarIngreso"
+class="btn btn-success">
+
+Guardar
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+<!-- ====================================================== -->
+<!-- MODAL GASTO -->
+<!-- ====================================================== -->
+
+<div class="modal fade" id="modalGasto" tabindex="-1">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <div class="modal-header bg-danger text-white">
+
+                <h5 class="modal-title">
+
+                    Nuevo Gasto
+
+                </h5>
+
+                <button
+                    class="btn-close btn-close-white"
+                    data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <div class="mb-3">
+
+                    <label>Fecha</label>
+
+                    <input
+                        type="date"
+                        id="fechaGasto"
+                        class="form-control">
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label>Concepto</label>
+
+                    <input
+                        type="text"
+                        id="conceptoGasto"
+                        class="form-control">
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label>Categoría</label>
+
+                    <select
+                        id="categoriaGasto"
+                        class="form-select">
+
+                        <option>Comida</option>
+                        <option>Transporte</option>
+                        <option>Hogar</option>
+                        <option>Salud</option>
+                        <option>Servicios</option>
+                        <option>Educación</option>
+                        <option>Ocio</option>
+                        <option>Otros</option>
+
+                    </select>
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label>Monto</label>
+
+                    <input
+                        type="number"
+                        id="montoGasto"
+                        class="form-control">
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal">
+
+                    Cancelar
+
+                </button>
+
+                <button
+                    id="guardarGasto"
+                    class="btn btn-danger">
+
+                    Guardar
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ====================================================== -->
+<!-- MODAL EDITAR -->
+<!-- ====================================================== -->
+
+<div class="modal fade" id="modalEditar" tabindex="-1">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <div class="modal-header bg-primary text-white">
+
+                <h5 class="modal-title">
+
+                    Editar Movimiento
+
+                </h5>
+
+                <button
+                    class="btn-close btn-close-white"
+                    data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <input
+                    type="hidden"
+                    id="editarId">
+
+                <input
+                    type="hidden"
+                    id="editarTipo">
+
+                <div class="mb-3">
+
+                    <label>Fecha</label>
+
+                    <input
+                        type="date"
+                        id="editarFecha"
+                        class="form-control">
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label>Concepto</label>
+
+                    <input
+                        type="text"
+                        id="editarConcepto"
+                        class="form-control">
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label>Categoría</label>
+
+                    <select
+                        id="editarCategoria"
+                        class="form-select">
+
+                        <option>Comida</option>
+                        <option>Transporte</option>
+                        <option>Hogar</option>
+                        <option>Salud</option>
+                        <option>Servicios</option>
+                        <option>Educación</option>
+                        <option>Ocio</option>
+                        <option>Otros</option>
+
+                    </select>
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label>Monto</label>
+
+                    <input
+                        type="number"
+                        id="editarMonto"
+                        class="form-control">
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal">
+
+                    Cancelar
+
+                </button>
+
+                <button
+                    id="actualizarMovimiento"
+                    class="btn btn-primary">
+
+                    Guardar Cambios
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ====================================================== -->
+<!-- MODAL IMPORTAR JSON -->
+<!-- ====================================================== -->
+
+<div class="modal fade" id="modalImportar" tabindex="-1">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <div class="modal-header bg-info text-white">
+
+                <h5>Importar respaldo</h5>
+
+                <button
+                    class="btn-close btn-close-white"
+                    data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <input
+                    type="file"
+                    id="archivoJSON"
+                    accept=".json"
+                    class="form-control">
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal">
+
+                    Cancelar
+
+                </button>
+
+                <button
+                    id="btnImportar"
+                    class="btn btn-info">
+
+                    Importar
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Bootstrap -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Scripts del proyecto -->
+
+<script src="js/utils.js"></script>
+
+<script src="js/storage.js"></script>
+
+<script src="js/charts.js"></script>
+
+<script src="js/export.js"></script>
+
+<script src="js/app.js"></script>
+
+</body>
+
+</html>
